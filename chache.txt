@@ -1,0 +1,168 @@
+#include <Arduino.h>
+#include <SPI.h>
+#include <GxEPD2_BW.h>
+#include "U8g2_for_Adafruit_GFX.h"
+
+// 屏幕型号及引脚配置（与现有代码保持一致）
+#define GxEPD2_DISPLAY_CLASS GxEPD2_BW
+#define GxEPD2_DRIVER_CLASS GxEPD2_290  // 2.9英寸屏
+#define MAX_DISPLAY_BUFFER_SIZE 65536ul
+#define MAX_HEIGHT(EPD) (EPD::HEIGHT <= MAX_DISPLAY_BUFFER_SIZE / (EPD::WIDTH / 8) ? EPD::HEIGHT : MAX_DISPLAY_BUFFER_SIZE / (EPD::WIDTH / 8))
+typedef GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> DisplayType;
+DisplayType display(GxEPD2_DRIVER_CLASS(15, 27, 26, 25));  // CS, DC, RST, BUSY
+
+// 部分刷新窗口配置（满足字节对齐）
+#define REFRESH_X 8
+#define REFRESH_Y 8
+#define REFRESH_W 16
+#define REFRESH_H 16
+#define TEST_COUNT 10  // 测试次数（减少次数避免显示拥挤）
+
+// 字体配置（复用现有中/英文字体）
+U8G2_FOR_ADAFRUIT_GFX u8g2gfx;
+const uint8_t* chineseFont = u8g2_font_wqy16_t_gb2312b;  // 中文字体
+const uint8_t* englishFont = u8g2_font_helvB12_tf;       // 英文字体
+
+// 声明统一文本显示函数（复用现有实现）
+void drawUniversalText(int16_t x, int16_t y, const char* text, const uint8_t* font, uint16_t color, uint8_t alignment = 0);
+
+void setup() {
+  Serial.begin(115200);
+  // 初始化HSPI（与现有代码保持一致）
+#ifdef USE_HSPI_FOR_EPD
+  SPIClass hspi(HSPI);
+  hspi.begin(14, -1, 13);  // sck=14, miso=-1, mosi=13
+  SPISettings epd_spi_settings(4000000, MSBFIRST, SPI_MODE0);
+  display.epd2.selectSPI(hspi, epd_spi_settings);
+#endif
+  display.init();
+  display.setRotation(1);  // 旋转方向与现有代码一致
+  u8g2gfx.begin(display);  // 绑定U8g2与显示对象
+
+  // 执行刷新率测试
+  display.setPartialWindow(REFRESH_X, REFRESH_Y, REFRESH_W, REFRESH_H);
+  unsigned long totalTime = 0;
+  unsigned long minTime = 1000000;
+  unsigned long maxTime = 0;
+
+  for (int i = 0; i < TEST_COUNT; i++) {
+    unsigned long start = micros();
+    // 执行部分刷新（绘制简单内容）
+    display.firstPage();
+    do {
+      display.fillRect(REFRESH_X, REFRESH_Y, REFRESH_W, REFRESH_H, i % 2 == 0 ? GxEPD_BLACK : GxEPD_WHITE);
+    } while (display.nextPage());
+    unsigned long end = micros();
+    unsigned long duration = end - start;
+
+    totalTime += duration;
+    if (duration < minTime) minTime = duration;
+    if (duration > maxTime) maxTime = duration;
+    delayMicroseconds(100);  // 避免硬件过载
+  }
+
+  // 计算测试结果
+  float avgDurationMs = totalTime / TEST_COUNT / 1000.0;
+  float avgFps = 1000.0 / avgDurationMs;
+  float maxFps = 1000000.0 / minTime;
+
+  // 在屏幕上显示结果（全窗口刷新确保清晰）
+  display.setFullWindow();
+  display.firstPage();
+  do {
+    display.fillScreen(GxEPD_WHITE);  // 清空背景
+
+    // 标题（居中）
+    drawUniversalText(
+      display.width() / 2, 20,
+      "刷新率测试结果",
+      chineseFont,
+      GxEPD_BLACK,
+      1  // 居中对齐
+    );
+
+    // 测试次数（左对齐）
+    char countStr[32];
+    sprintf(countStr, "测试次数：%d次", TEST_COUNT);
+    drawUniversalText(
+      10, 50,
+      countStr,
+      chineseFont,
+      GxEPD_BLACK,
+      0  // 左对齐
+    );
+
+    // 最小耗时
+    char minStr[32];
+    sprintf(minStr, "最小耗时：%luμs", minTime);
+    drawUniversalText(
+      10, 75,
+      minStr,
+      chineseFont,
+      GxEPD_BLACK,
+      0
+    );
+
+    // 最大耗时
+    char maxStr[32];
+    sprintf(maxStr, "最大耗时：%luμs", maxTime);
+    drawUniversalText(
+      10, 100,
+      maxStr,
+      chineseFont,
+      GxEPD_BLACK,
+      0
+    );
+
+    // 平均刷新率（右对齐）
+    char avgFpsStr[32];
+    sprintf(avgFpsStr, "平均：%.2f FPS", avgFps);
+    drawUniversalText(
+      display.width() - 10, 75,
+      avgFpsStr,
+      englishFont,
+      GxEPD_BLACK,
+      2  // 右对齐
+    );
+
+    // 最大刷新率（右对齐）
+    char maxFpsStr[32];
+    sprintf(maxFpsStr, "最大：%.2f FPS", maxFps);
+    drawUniversalText(
+      display.width() - 10, 100,
+      maxFpsStr,
+      englishFont,
+      GxEPD_BLACK,
+      2
+    );
+
+  } while (display.nextPage());
+
+  display.powerOff();  // 测试结束后关闭电源
+}
+
+void loop() {}
+
+// 复用现有统一文本显示函数（保持原实现不变）
+void drawUniversalText(int16_t x, int16_t y, const char* text, const uint8_t* font, uint16_t color, uint8_t alignment) {
+  const int16_t ascent = 14;
+  const int16_t descent = -2;
+  const uint16_t screenHeight = display.height();
+
+  u8g2gfx.setFont(font);
+  u8g2gfx.setForegroundColor(color == GxEPD_BLACK ? 0 : 1);
+  u8g2gfx.setBackgroundColor(color == GxEPD_WHITE ? 0 : 1);
+
+  if (alignment != 0) {
+    uint16_t textWidth = u8g2gfx.getUTF8Width(text);
+    if (alignment == 1) x -= textWidth / 2;
+    else if (alignment == 2) x -= textWidth;
+  }
+
+  int16_t textTop = y - ascent;
+  int16_t textBottom = y - descent;
+  if (textTop < 0) y = ascent;
+  else if (textBottom > screenHeight) y = screenHeight + descent;
+
+  u8g2gfx.drawUTF8(x, y, text);
+}

@@ -1,66 +1,86 @@
-// ÓÃÓÚ´óÁ¬¼ÑÏÔµÄSPIµç×ÓÖ½ÆÁºÍ Waveshare ¿ª·¢°åµÄÏÔÊ¾¿âÊ¾Àı
-// ĞèÒªÓ²¼şSPIºÍAdafruit_GFX¿â¡£×¢Òâ£ºµç×ÓÖ½ÆÁĞèÒª3.3VµçÔ´ºÍÊı¾İÏß£¡
-// ÏÔÊ¾¿â»ùÓÚ¼ÑÏÔµÄÑİÊ¾Ê¾Àı£ºhttps://www.good-display.com/companyfile/32/
-// ×÷Õß£ºJean-Marc Zingg
-// °æ±¾£º²Î¼ûlibrary.properties
-// ¿âµØÖ·£ºhttps://github.com/ZinggJM/GxEPD2
+// ç”¨äºå¤§è¿ä½³æ˜¾çš„SPIç”µå­çº¸å±å’Œ Waveshare å¼€å‘æ¿çš„æ˜¾ç¤ºåº“ç¤ºä¾‹
+// éœ€è¦ç¡¬ä»¶SPIå’ŒAdafruit_GFXåº“ã€‚æ³¨æ„ï¼šç”µå­çº¸å±éœ€è¦3.3Vç”µæºå’Œæ•°æ®çº¿ï¼
+// æ˜¾ç¤ºåº“åŸºäºä½³æ˜¾çš„æ¼”ç¤ºç¤ºä¾‹ï¼šhttps://www.good-display.com/companyfile/32/
+// ä½œè€…ï¼šJean-Marc Zingg
+// ç‰ˆæœ¬ï¼šå‚è§library.properties
+// åº“åœ°å€ï¼šhttps://github.com/ZinggJM/GxEPD2
 
-// GxEPD2_WS_ESP32_Driver£ºÊÊÓÃÓÚÍ¨ÓÃµç×ÓÖ½ raw Ãæ°åÇı¶¯°å¡¢ESP32 WiFi/À¶ÑÀÎŞÏßµÄGxEPD2_Example±äÌå
-// ²Î¿¼Á´½Ó£ºhttps://www.waveshare.com/product/e-paper-esp32-driver-board.htm
+// GxEPD2_WS_ESP32_Driverï¼šé€‚ç”¨äºé€šç”¨ç”µå­çº¸ raw é¢æ¿é©±åŠ¨æ¿ã€ESP32 WiFi/è“ç‰™æ— çº¿çš„GxEPD2_Exampleå˜ä½“
+// å‚è€ƒé“¾æ¥ï¼šhttps://www.waveshare.com/product/e-paper-esp32-driver-board.htm
 
-// Waveshare ESP32Çı¶¯°åµÄÒı½ÅÓ³Éä
+// Waveshare ESP32é©±åŠ¨æ¿çš„å¼•è„šæ˜ å°„
 // BUSY -> 25, RST -> 26, DC -> 27, CS-> 15, CLK -> 13, DIN -> 14
 
-// È¡ÏûÏÂÒ»ĞĞ×¢ÊÍÒÔ½«HSPIÓÃÓÚEPD£¨VSPIÓÃÓÚSD£©£¬ÀıÈçÊ¹ÓÃWaveshare ESP32Çı¶¯°å
+// å–æ¶ˆä¸‹ä¸€è¡Œæ³¨é‡Šä»¥å°†HSPIç”¨äºEPDï¼ˆVSPIç”¨äºSDï¼‰ï¼Œä¾‹å¦‚ä½¿ç”¨Waveshare ESP32é©±åŠ¨æ¿
 #define USE_HSPI_FOR_EPD
 
-// »ùÀàGxEPD2_GFX¿ÉÓÃÓÚ´«µİÏÔÊ¾ÊµÀıµÄÒıÓÃ»òÖ¸Õë×÷Îª²ÎÊı£¬»á¶àÊ¹ÓÃÔ¼1.2k´úÂë
-// ÆôÓÃ»ò½ûÓÃGxEPD2_GFX»ùÀà
+// åŸºç±»GxEPD2_GFXå¯ç”¨äºä¼ é€’æ˜¾ç¤ºå®ä¾‹çš„å¼•ç”¨æˆ–æŒ‡é’ˆä½œä¸ºå‚æ•°ï¼Œä¼šå¤šä½¿ç”¨çº¦1.2kä»£ç 
+// å¯ç”¨æˆ–ç¦ç”¨GxEPD2_GFXåŸºç±»
 #define ENABLE_GxEPD2_GFX 0
 
 #include <Arduino.h>
 #include <SPI.h>
+#include <Adafruit_GFX.h>
 #include <GxEPD2_BW.h>
 #include <Fonts/FreeMonoBold9pt7b.h>
+// #include <U8g2lib.h>
+// å…³é”®ï¼šU8g2é€‚é…Adafruit_GFXï¼ˆGxEPD2ç»§æ‰¿è‡ªAdafruit_GFXï¼‰
+#include "U8g2_for_Adafruit_GFX.h"
+#include <cstdio>
 
-// Ñ¡ÔñÏÔÊ¾Àà£¨½öÒ»¸ö£©£¬ĞèÓëµç×ÓÖ½Ãæ°åÀàĞÍÆ¥Åä
+// é€‰æ‹©æ˜¾ç¤ºç±»ï¼ˆä»…ä¸€ä¸ªï¼‰ï¼Œéœ€ä¸ç”µå­çº¸é¢æ¿ç±»å‹åŒ¹é…
 #define GxEPD2_DISPLAY_CLASS GxEPD2_BW
 
-// Ñ¡ÔñÏÔÊ¾Çı¶¯Àà£¨½öÒ»¸ö£©£¬ĞèÓëÄãµÄÃæ°åÆ¥Åä
+// é€‰æ‹©æ˜¾ç¤ºé©±åŠ¨ç±»ï¼ˆä»…ä¸€ä¸ªï¼‰ï¼Œéœ€ä¸ä½ çš„é¢æ¿åŒ¹é…
 #define GxEPD2_DRIVER_CLASS GxEPD2_290     // GDEH029A1   128x296, SSD1608 (IL3820), (E029A01-FPC-A1 SYX1553)
 
-// ¶¨ÒåÏÔÊ¾ÀàĞÍÏà¹ØµÄºê
+// å®šä¹‰æ˜¾ç¤ºç±»å‹ç›¸å…³çš„å®
 #define GxEPD2_BW_IS_GxEPD2_BW true
 #define IS_GxEPD(c, x) (c##x)
 #define IS_GxEPD2_BW(x) IS_GxEPD(GxEPD2_BW_IS_, x)
 
 #if defined(ESP32)
-    #define MAX_DISPLAY_BUFFER_SIZE 65536ul // ×î´óÏÔÊ¾»º³åÇø´óĞ¡
+    #define MAX_DISPLAY_BUFFER_SIZE 65536ul // æœ€å¤§æ˜¾ç¤ºç¼“å†²åŒºå¤§å°
     #if IS_GxEPD2_BW(GxEPD2_DISPLAY_CLASS)
-    // ¼ÆËã×î´ó¸ß¶È£¬È·±£²»³¬¹ı»º³åÇø´óĞ¡
+    // è®¡ç®—æœ€å¤§é«˜åº¦ï¼Œç¡®ä¿ä¸è¶…è¿‡ç¼“å†²åŒºå¤§å°
     #define MAX_HEIGHT(EPD) (EPD::HEIGHT <= MAX_DISPLAY_BUFFER_SIZE / (EPD::WIDTH / 8) ? EPD::HEIGHT : MAX_DISPLAY_BUFFER_SIZE / (EPD::WIDTH / 8))
     #endif
 
-    // ¶¨ÒåÏÔÊ¾ÀàĞÍ
+    // å®šä¹‰æ˜¾ç¤ºç±»å‹
     typedef GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> DisplayType;
 
-    // ³õÊ¼»¯ÏÔÊ¾¶ÔÏó£¬²ÎÊıÎªÒı½Å£ºCS=15, DC=27, RST=26, BUSY=25
+    // åˆå§‹åŒ–æ˜¾ç¤ºå¯¹è±¡ï¼Œå‚æ•°ä¸ºå¼•è„šï¼šCS=15, DC=27, RST=26, BUSY=25
     DisplayType display(GxEPD2_DRIVER_CLASS(/*CS=*/ 15, /*DC=*/ 27, /*RST=*/ 26, /*BUSY=*/ 25));
 #endif
 
+// éƒ¨åˆ†åˆ·æ–°çª—å£é…ç½®ï¼ˆæ»¡è¶³å­—èŠ‚å¯¹é½ï¼‰
+#define REFRESH_X 8
+#define REFRESH_Y 8
+#define REFRESH_W 16
+#define REFRESH_H 16
+#define TEST_COUNT 20  // æµ‹è¯•æ¬¡æ•°ï¼ˆå‡å°‘æ¬¡æ•°é¿å…æ˜¾ç¤ºæ‹¥æŒ¤ï¼‰
+
+
+U8G2_FOR_ADAFRUIT_GFX u8g2gfx;
 
 #include "epaper_bitmaps.h"
 
-// °üº¬2.9Ó¢´çºÚ°×ÆÁµÄÎ»Í¼Í·ÎÄ¼ş
+// åŒ…å«2.9è‹±å¯¸é»‘ç™½å±çš„ä½å›¾å¤´æ–‡ä»¶
 #include "bitmaps/Bitmaps128x296.h"
 
 #if defined(ESP32) && defined(USE_HSPI_FOR_EPD)
-// ¶¨ÒåHSPI¶ÔÏó
+// å®šä¹‰HSPIå¯¹è±¡
 SPIClass hspi(HSPI);
 #endif
 
-// º¯ÊıÉùÃ÷
-void drawCustomContent();  // »æÖÆ×Ô¶¨ÒåÄÚÈİ
+// å£°æ˜éœ€ä½¿ç”¨çš„å­—ä½“ï¼ˆä¸­æ–‡å­—åº“+è‹±æ–‡å­—ä½“ï¼Œç»Ÿä¸€é€šè¿‡U8g2ç®¡ç†ï¼‰
+// ä¸­æ–‡å­—åº“ï¼šu8g2_font_wqy16_t_gb2312bï¼ˆ16å·æ–‡æ³‰é©¿æ­£é»‘ï¼Œæ”¯æŒGB2312ï¼‰
+// è‹±æ–‡å­—ä½“ï¼šu8g2_font_helvB12_tfï¼ˆ12å·Helveticaç²—ä½“ï¼Œä¸ä¸­æ–‡å­—ä½“é£æ ¼åŒ¹é…ï¼‰
+const uint8_t* chineseFont = u8g2_font_wqy16_t_gb2312b;
+const uint8_t* englishFont = u8g2_font_helvB12_tf;
+
+
+void drawCustomContent();  // ç»˜åˆ¶è‡ªå®šä¹‰å†…å®¹
 void helloWorld();
 void helloWorldForDummies();
 void helloFullScreenPartialMode();
@@ -75,6 +95,11 @@ void showPartialUpdate();
 void drawBitmaps();
 void drawBitmaps128x296();
 void drawMyImage();
+//ç»Ÿä¸€æ–‡æœ¬æ˜¾ç¤ºå‡½æ•°ï¼ˆæ”¯æŒæ±‰å­—ã€è‹±æ–‡ã€æ•°å­—æ··åˆæ˜¾ç¤ºï¼‰
+void drawUniversalText(int16_t x, int16_t y, const char* text, const uint8_t* font, uint16_t color, uint8_t alignment = 0);
+void testUnifiedTextDisplay();// æµ‹è¯•å‡½æ•°ï¼šéªŒè¯ç»Ÿä¸€æ¥å£çš„æ··åˆæ˜¾ç¤ºæ•ˆæœ
+
+
 
 
 void setup()
@@ -82,35 +107,140 @@ void setup()
   Serial.begin(115200);
   Serial.println();
   Serial.println("setup");
-  // *** Õë¶ÔWaveshare ESP32Çı¶¯°åµÄÌØÊâ´¦Àí *** //
-  // ********************************************************* //
-  // *** ³õÊ¼»¯HSPI£¬ÅäÖÃSPIÄ£Ê½ºÍÒı½Å *** //
-#if defined(ESP32) && defined(USE_HSPI_FOR_EPD)
-  hspi.begin(14, -1, 13);  // sck=14, miso=-1(²»Ê¹ÓÃ), mosi=13(¸ù¾İÓ²¼şÁ¬½ÓÅäÖÃ)
-  // ¹Ø¼ü£ºÊ¹ÓÃSPIÊ±£¬E029A01Ä¬ÈÏĞèÒªMODE0£¬ÈôÊ¹ÓÃMODE3¿ÉÄÜÎŞ·¨¶ÁÈ¡
-  SPISettings epd_spi_settings(4000000, MSBFIRST, SPI_MODE0); // 4MHzËÙÂÊ£¬SPIÄ£Ê½ÎªMODE0
-  display.epd2.selectSPI(hspi, epd_spi_settings); // Ñ¡ÔñÅäÖÃºÃµÄSPI¶ÔÏó
-#endif
-  // *** ³õÊ¼»¯ÏÔÊ¾ÆÁ£¨Ô­º¯Êıdisplay.init(115200)¸ÄÎªÎŞ²Î£¬±£³ÖÄ¬ÈÏÅäÖÃ£©*** //
-  display.init();
-  Serial.println("ÏÔÊ¾ÆÁ³õÊ¼»¯Íê³É"); // ´òÓ¡ÌáÊ¾È·ÈÏ³õÊ¼»¯Ö´ĞĞ
-  // Ê×´Î¸üĞÂÓ¦ÎªÈ«Ë¢ĞÂ
-  drawCustomContent();  // »æÖÆ×Ô¶¨ÒåÄÚÈİ
-  delay(5000);
-   // ÏÔÊ¾×Ô¶¨ÒåÍ¼Æ¬
-  display.setFullWindow(); // È«ÆÁÄ»Ë¢ĞÂ£¨Í¼Æ¬ĞèÒªÈ«Ë¢ĞÂ£©
-  display.firstPage();     // ¿ªÊ¼»æÍ¼Ñ­»·
-  do {
-    display.fillScreen(GxEPD_WHITE); // Ìî³ä±³¾°Îª°×É«
-    // »æÖÆ×Ô¶¨ÒåÉú³ÉµÄÍ¼Æ¬£¨´Ë´¦Ìæ»»ÎªÊµ¼ÊÍ¼Æ¬¶ÔÓ¦µÄ»æÖÆº¯Êı£©
-    draw_rgb_cam_1758806792_png();
-  } while (display.nextPage()); // Íê³É»æÍ¼²¢Ë¢ĞÂÆÁÄ»
-    delay(5000);
 
-  helloWorldForDummies();
-  helloFullScreenPartialMode();
+  // *** é’ˆå¯¹Waveshare ESP32é©±åŠ¨æ¿çš„ç‰¹æ®Šå¤„ç† *** //
+  // ********************************************************* //
+  // *** åˆå§‹åŒ–HSPIï¼Œé…ç½®SPIæ¨¡å¼å’Œå¼•è„š *** //
+#if defined(ESP32) && defined(USE_HSPI_FOR_EPD)
+  hspi.begin(14, -1, 13);  // sck=14, miso=-1(ä¸ä½¿ç”¨), mosi=13(æ ¹æ®ç¡¬ä»¶è¿æ¥é…ç½®)
+  // å…³é”®ï¼šä½¿ç”¨SPIæ—¶ï¼ŒE029A01é»˜è®¤éœ€è¦MODE0ï¼Œè‹¥ä½¿ç”¨MODE3å¯èƒ½æ— æ³•è¯»å–
+  SPISettings epd_spi_settings(4000000, MSBFIRST, SPI_MODE0); // 4MHzé€Ÿç‡ï¼ŒSPIæ¨¡å¼ä¸ºMODE0
+  display.epd2.selectSPI(hspi, epd_spi_settings); // é€‰æ‹©é…ç½®å¥½çš„SPIå¯¹è±¡
+#endif
+  // *** åˆå§‹åŒ–æ˜¾ç¤ºå±ï¼ˆåŸå‡½æ•°display.init(115200)æ”¹ä¸ºæ— å‚ï¼Œä¿æŒé»˜è®¤é…ç½®ï¼‰*** //
+  display.init();
+  display.setRotation(1);
+  Serial.println("æ˜¾ç¤ºå±åˆå§‹åŒ–å®Œæˆ"); // æ‰“å°æç¤ºç¡®è®¤åˆå§‹åŒ–æ‰§è¡Œ
+
+  // å…³é”®ï¼šåˆå§‹åŒ–U8g2ä¸GxEPD2æ˜¾ç¤ºå¯¹è±¡çš„ç»‘å®š
+  u8g2gfx.begin(display);  // å°†u8g2gfxä¸displayå…³è”ï¼Œåç»­é€šè¿‡u8g2gfxç»˜å›¾
+//   drawCustomContent();  // ç»˜åˆ¶è‡ªå®šä¹‰å†…å®¹
+//   delay(5000);
+   // æ˜¾ç¤ºè‡ªå®šä¹‰å›¾ç‰‡
+//   display.setFullWindow(); // å…¨å±å¹•åˆ·æ–°ï¼ˆå›¾ç‰‡éœ€è¦å…¨åˆ·æ–°ï¼‰
+//   display.firstPage();     // å¼€å§‹ç»˜å›¾å¾ªç¯
+//   do {
+//     display.fillScreen(GxEPD_WHITE); // å¡«å……èƒŒæ™¯ä¸ºç™½è‰²
+//     // ç»˜åˆ¶è‡ªå®šä¹‰ç”Ÿæˆçš„å›¾ç‰‡ï¼ˆæ­¤å¤„æ›¿æ¢ä¸ºå®é™…å›¾ç‰‡å¯¹åº”çš„ç»˜åˆ¶å‡½æ•°ï¼‰
+//     draw_rgb_cam_1758806792_png();
+//   } while (display.nextPage()); // å®Œæˆç»˜å›¾å¹¶åˆ·æ–°å±å¹•
+//     delay(5000);
+//   display.setFullWindow();//diaplay.init()é‡Œé¢å·²ç»è®¾ç½®è¿‡äº†
+
+  helloWorld();
   helloEpaper();
-  drawCornerTest();
+
+
+//   // æµ‹è¯•æ–°çš„ç»Ÿä¸€æ–‡æœ¬æ˜¾ç¤ºå‡½æ•°
+//   testUnifiedTextDisplay();
+
+    display.setPartialWindow(REFRESH_X, REFRESH_Y, REFRESH_W, REFRESH_H);
+  unsigned long totalTime = 0;
+  unsigned long minTime = 1000000;
+  unsigned long maxTime = 0;
+
+  for (int i = 0; i < TEST_COUNT; i++) {
+    unsigned long start = micros();
+    // æ‰§è¡Œéƒ¨åˆ†åˆ·æ–°ï¼ˆç»˜åˆ¶ç®€å•å†…å®¹ï¼‰
+    display.firstPage();
+    do {
+      display.fillRect(REFRESH_X, REFRESH_Y, REFRESH_W, REFRESH_H, i % 2 == 0 ? GxEPD_BLACK : GxEPD_WHITE);
+    } while (display.nextPage());
+    unsigned long end = micros();
+    unsigned long duration = end - start;
+
+    totalTime += duration;
+    if (duration < minTime) minTime = duration;
+    if (duration > maxTime) maxTime = duration;
+    delayMicroseconds(100);  // é¿å…ç¡¬ä»¶è¿‡è½½
+  }
+
+  // è®¡ç®—æµ‹è¯•ç»“æœ
+  float avgDurationMs = totalTime / TEST_COUNT / 1000.0;
+  float avgFps = 1000.0 / avgDurationMs;
+  float maxFps = 1000000.0 / minTime;
+
+  // åœ¨å±å¹•ä¸Šæ˜¾ç¤ºç»“æœï¼ˆå…¨çª—å£åˆ·æ–°ç¡®ä¿æ¸…æ™°ï¼‰
+  display.setFullWindow();
+  display.firstPage();
+  do {
+    display.fillScreen(GxEPD_WHITE);  // æ¸…ç©ºèƒŒæ™¯
+
+    // æ ‡é¢˜ï¼ˆå±…ä¸­ï¼‰
+    drawUniversalText(
+      display.width() / 2, 20,
+      "åˆ·æ–°ç‡æµ‹è¯•ç»“æœ",
+      chineseFont,
+      GxEPD_BLACK,
+      1  // å±…ä¸­å¯¹é½
+    );
+
+    // æµ‹è¯•æ¬¡æ•°ï¼ˆå·¦å¯¹é½ï¼‰
+    char countStr[32];
+    sprintf(countStr, "æµ‹è¯•æ¬¡æ•°ï¼š%dæ¬¡", TEST_COUNT);
+    drawUniversalText(
+      10, 50,
+      countStr,
+      chineseFont,
+      GxEPD_BLACK,
+      0  // å·¦å¯¹é½
+    );
+
+    // æœ€å°è€—æ—¶
+    char minStr[32];
+    sprintf(minStr, "æœ€å°è€—æ—¶ï¼š%luÎ¼s", minTime);
+    drawUniversalText(
+      10, 75,
+      minStr,
+      chineseFont,
+      GxEPD_BLACK,
+      0
+    );
+
+    // æœ€å¤§è€—æ—¶
+    char maxStr[32];
+    sprintf(maxStr, "æœ€å¤§è€—æ—¶ï¼š%luÎ¼s", maxTime);
+    drawUniversalText(
+      10, 100,
+      maxStr,
+      chineseFont,
+      GxEPD_BLACK,
+      0
+    );
+
+    // å¹³å‡åˆ·æ–°ç‡ï¼ˆå³å¯¹é½ï¼‰
+    char avgFpsStr[32];
+    sprintf(avgFpsStr, "å¹³å‡ï¼š%.2f FPS", avgFps);
+    drawUniversalText(
+      display.width() - 10, 75,
+      avgFpsStr,
+      englishFont,
+      GxEPD_BLACK,
+      2  // å³å¯¹é½
+    );
+
+    // æœ€å¤§åˆ·æ–°ç‡ï¼ˆå³å¯¹é½ï¼‰
+    char maxFpsStr[32];
+    sprintf(maxFpsStr, "æœ€å¤§ï¼š%.2f FPS", maxFps);
+    drawUniversalText(
+      display.width() - 10, 100,
+      maxFpsStr,
+      englishFont,
+      GxEPD_BLACK,
+      2
+    );
+
+  } while (display.nextPage());
 
 
   display.powerOff();
@@ -121,86 +251,231 @@ void loop()
 {
 }
 
-// ×Ô¶¨ÒåÄÚÈİ»æÖÆº¯Êı£ºÎÄ×Ö + Í¼ĞÎ×éºÏ
+// æµ‹è¯•å‡½æ•°ï¼šéªŒè¯ç»Ÿä¸€æ¥å£çš„æ··åˆæ˜¾ç¤ºæ•ˆæœ
+void testUnifiedTextDisplay()
+{
+  display.setPartialFullWindow();
+  display.firstPage();
+  do
+  {
+    display.fillScreen(GxEPD_WHITE);
+
+    // 1. å·¦å¯¹é½ï¼šæ··åˆä¸­è‹±æ–‡+æ•°å­—
+    drawUniversalText(
+      10, 14,
+      "æ¸©åº¦ï¼š25.5â„ƒ æ¹¿åº¦ï¼š60%",  // å«æ±‰å­—ã€æ•°å­—ã€ç¬¦å·
+      chineseFont,
+      GxEPD_BLACK,
+      0  // å·¦å¯¹é½
+    );
+
+    // 2. å±…ä¸­å¯¹é½ï¼šè‹±æ–‡å¥å­
+    drawUniversalText(
+      display.width() / 2, 80,
+      "ESP32 & E-Paper Demo",
+      englishFont,
+      GxEPD_BLACK,
+      1  // å±…ä¸­
+    );
+
+    // 3. å³å¯¹é½ï¼šä¸­æ–‡å¥å­
+    drawUniversalText(
+      display.width() - 10, 126,
+      "ç»Ÿä¸€æ¥å£æµ‹è¯•æˆåŠŸ",
+      chineseFont,
+      GxEPD_BLACK,
+      2  // å³å¯¹é½
+    );
+  }
+  while (display.nextPage());
+  delay(5000);  // æ˜¾ç¤º5ç§’
+}
+
+/**
+ * ç»Ÿä¸€æ–‡æœ¬æ˜¾ç¤ºå‡½æ•°ï¼ˆæ”¯æŒæ±‰å­—ã€è‹±æ–‡ã€æ•°å­—æ··åˆæ˜¾ç¤ºï¼‰
+ * @param xï¼šæ–‡æœ¬å·¦ä¸Šè§’xåæ ‡ï¼ˆæˆ–å¯¹é½åŸºå‡†ç‚¹xï¼‰
+ * @param yï¼šæ–‡æœ¬åŸºçº¿yåæ ‡ï¼ˆU8g2æ–‡æœ¬ç»˜åˆ¶ä»¥åŸºçº¿ä¸ºåŸºå‡†ï¼Œéå·¦ä¸Šè§’ï¼‰
+ * @param textï¼šè¦æ˜¾ç¤ºçš„å­—ç¬¦ä¸²ï¼ˆæ”¯æŒGB2312æ±‰å­—+ASCIIå­—ç¬¦ï¼‰
+ * @param fontï¼šU8g2å­—ä½“ï¼ˆå¦‚chineseFont/englishFontï¼‰
+ * @param colorï¼šæ–‡æœ¬é¢œè‰²ï¼ˆGxEPD_BLACK/GxEPD_WHITEï¼Œç”µå­çº¸ä»…æ”¯æŒé»‘ç™½ï¼‰
+ * @param alignmentï¼šå¯¹é½æ–¹å¼ï¼ˆ0=å·¦å¯¹é½ï¼Œ1=å±…ä¸­ï¼Œ2=å³å¯¹é½ï¼‰
+ */
+/**
+ * ç»Ÿä¸€æ–‡æœ¬æ˜¾ç¤ºå‡½æ•°ï¼ˆæ”¯æŒæ±‰å­—ã€è‹±æ–‡ã€æ•°å­—æ··åˆæ˜¾ç¤ºï¼‰
+ * åŸºäºå­—ä½“ç‰¹æ€§ä¼˜åŒ–ï¼šAscent=14ï¼ˆåŸºçº¿åˆ°é¡¶éƒ¨è·ç¦»ï¼‰ï¼ŒDescent=-2ï¼ˆåŸºçº¿åˆ°åº•éƒ¨è·ç¦»ï¼‰
+ * @param xï¼šæ–‡æœ¬å·¦ä¸Šè§’xåæ ‡ï¼ˆæˆ–å¯¹é½åŸºå‡†ç‚¹xï¼‰
+ * @param yï¼šæ–‡æœ¬åŸºçº¿yåæ ‡ï¼ˆU8g2æ–‡æœ¬ç»˜åˆ¶ä»¥åŸºçº¿ä¸ºåŸºå‡†ï¼‰
+ * @param textï¼šè¦æ˜¾ç¤ºçš„å­—ç¬¦ä¸²ï¼ˆæ”¯æŒGB2312æ±‰å­—+ASCIIå­—ç¬¦ï¼‰
+ * @param fontï¼šU8g2å­—ä½“ï¼ˆå¦‚chineseFont/englishFontï¼‰
+ * @param colorï¼šæ–‡æœ¬é¢œè‰²ï¼ˆGxEPD_BLACK/GxEPD_WHITEï¼‰
+ * @param alignmentï¼šå¯¹é½æ–¹å¼ï¼ˆ0=å·¦å¯¹é½ï¼Œ1=å±…ä¸­ï¼Œ2=å³å¯¹é½ï¼‰
+ */
+void drawUniversalText(int16_t x, int16_t y, const char* text, const uint8_t* font, uint16_t color, uint8_t alignment)
+{
+  // 1. å­—ä½“å›ºå®šå‚æ•°ï¼ˆæ ¹æ®æµ‹è¯•å¾—å‡ºï¼‰
+  const int16_t ascent = 14;    // åŸºçº¿åˆ°æ–‡æœ¬é¡¶éƒ¨çš„è·ç¦»
+  const int16_t descent = -2;   // åŸºçº¿åˆ°æ–‡æœ¬åº•éƒ¨çš„è·ç¦»ï¼ˆè´Ÿå€¼ï¼‰
+  const uint16_t fontHeight = ascent - descent;  // å­—ä½“æ€»é«˜åº¦ï¼š14 - (-2) = 16
+  const uint16_t screenHeight = display.height(); // å±å¹•é«˜åº¦ï¼ˆæ—‹è½¬åä¸º128ï¼‰
+
+  // 2. è®¾ç½®å­—ä½“å’Œé¢œè‰²
+  u8g2gfx.setFont(font);
+  u8g2gfx.setForegroundColor(color == GxEPD_BLACK ? 0 : 1);
+  u8g2gfx.setBackgroundColor(color == GxEPD_WHITE ? 0 : 1);
+
+  // 3. è®¡ç®—å¯¹é½åçš„xåæ ‡
+  if (alignment != 0)
+  {
+    uint16_t textWidth = u8g2gfx.getUTF8Width(text);
+    if (alignment == 1)  // å±…ä¸­å¯¹é½
+    {
+      x -= textWidth / 2;
+    }
+    else if (alignment == 2)  // å³å¯¹é½
+    {
+      x -= textWidth;
+    }
+  }
+
+  // 4. è¾¹ç•Œæ£€æŸ¥ä¸yåæ ‡è°ƒæ•´ï¼ˆç¡®ä¿æ–‡æœ¬å®Œå…¨æ˜¾ç¤ºåœ¨å±å¹•å†…ï¼‰
+  int16_t textTop = y - ascent;       // æ–‡æœ¬é¡¶éƒ¨åæ ‡
+  int16_t textBottom = y - descent;   // æ–‡æœ¬åº•éƒ¨åæ ‡ï¼ˆå®é™…ä¸ºy + 2ï¼‰
+
+  // è‹¥æ–‡æœ¬é¡¶éƒ¨è¶…å‡ºå±å¹•ä¸Šè¾¹ç•Œï¼Œè°ƒæ•´åˆ°åˆšå¥½å¯è§
+  if (textTop < 0)
+  {
+    y = ascent;  // é¡¶éƒ¨å¯¹é½å±å¹•é¡¶éƒ¨ï¼ˆåŸºçº¿=ascentï¼Œæ­¤æ—¶textTop=0ï¼‰
+  }
+  // è‹¥æ–‡æœ¬åº•éƒ¨è¶…å‡ºå±å¹•ä¸‹è¾¹ç•Œï¼Œè°ƒæ•´åˆ°åˆšå¥½å¯è§
+  else if (textBottom > screenHeight)
+  {
+    y = screenHeight + descent;  // åº•éƒ¨å¯¹é½å±å¹•åº•éƒ¨ï¼ˆ128 - 2 = 126ï¼‰
+  }
+
+  // 5. ç»˜åˆ¶æ–‡æœ¬ï¼ˆç¡®ä¿åœ¨è°ƒæ•´åçš„å®‰å…¨åæ ‡å†…ï¼‰
+  u8g2gfx.drawUTF8(x, y, text);
+}
+
+
+// void drawUniversalText(int16_t x, int16_t y, const char* text, const uint8_t* font, uint16_t color, uint8_t alignment)
+// {
+//   // 1. è®¾ç½®å­—ä½“
+//   u8g2gfx.setFont(font);
+
+//   // 2. è®¾ç½®é¢œè‰²ï¼ˆU8g2ä¸­1=å‰æ™¯è‰²ï¼Œ0=èƒŒæ™¯è‰²ï¼Œéœ€ä¸GxEPDå¯¹åº”ï¼‰
+//   u8g2gfx.setForegroundColor(color == GxEPD_BLACK ? 0 : 1);
+//   u8g2gfx.setBackgroundColor(color == GxEPD_WHITE ? 0 : 1);  // èƒŒæ™¯è‰²ä¸å±å¹•ä¸€è‡´
+
+//   // 3. è®¡ç®—å¯¹é½åçš„xåæ ‡ï¼ˆæ ¹æ®å¯¹é½æ–¹å¼è°ƒæ•´ï¼‰
+//   if (alignment != 0)
+//   {
+//     uint16_t textWidth = u8g2gfx.getUTF8Width(text);  // è·å–æ–‡æœ¬å®½åº¦ï¼ˆU8g2å†…ç½®æ–¹æ³•ï¼Œæ”¯æŒæ±‰å­—ï¼‰
+//     if (alignment == 1)  // å±…ä¸­å¯¹é½
+//     {
+//       x -= textWidth / 2;
+//     }
+//     else if (alignment == 2)  // å³å¯¹é½
+//     {
+//       x -= textWidth;
+//     }
+//   }
+
+//   // 4. ç»˜åˆ¶æ–‡æœ¬ï¼ˆU8g2çš„drawUTF8æ”¯æŒå¤šç¼–ç å­—ç¬¦ï¼‰
+//   u8g2gfx.drawUTF8(x, y, text);
+// }
+
+
+// è‡ªå®šä¹‰å†…å®¹ç»˜åˆ¶å‡½æ•°ï¼šæ–‡å­— + å›¾å½¢ç»„åˆ
 void drawCustomContent() {
-  // 1. ÅäÖÃÏÔÊ¾²ÎÊı£ºĞı×ª·½Ïò¡¢×ÖÌå¡¢ÎÄ×ÖÑÕÉ«
-  display.setRotation(1);  // ÆÁÄ»Ğı×ª£¨0=Ä¬ÈÏ£¬1=ÏòÓÒĞı×ª90¶È£¬ÊÊÅä2.9Ó¢´çÆÁ£©
-  display.setFont(&FreeMonoBold9pt7b);  // ÉèÖÃ×ÖÌå£¨¿ÉÌæ»»ÎªÆäËû×ÖÌå£¬ÈçFreeSans12pt7bµÈ£©
-  display.setTextColor(GxEPD_BLACK);    // ÎÄ×ÖÑÕÉ«£¨GxEPD_WHITE/GxEPD_BLACK£¬²ÊÉ«ÆÁ¿ÉÊ¹ÓÃGxEPD_RED£©
+  // 1. é…ç½®æ˜¾ç¤ºå‚æ•°ï¼šæ—‹è½¬æ–¹å‘ã€å­—ä½“ã€æ–‡å­—é¢œè‰²
+  display.setRotation(1);  // å±å¹•æ—‹è½¬ï¼ˆ0=é»˜è®¤ï¼Œ1=å‘å³æ—‹è½¬90åº¦ï¼Œé€‚é…2.9è‹±å¯¸å±ï¼‰
+  display.setFont(&FreeMonoBold9pt7b);  // è®¾ç½®å­—ä½“ï¼ˆå¯æ›¿æ¢ä¸ºå…¶ä»–å­—ä½“ï¼Œå¦‚FreeSans12pt7bç­‰ï¼‰
+  display.setTextColor(GxEPD_BLACK);    // æ–‡å­—é¢œè‰²ï¼ˆGxEPD_WHITE/GxEPD_BLACKï¼Œå½©è‰²å±å¯ä½¿ç”¨GxEPD_REDï¼‰
 
-  // 2. ¶¨Òå×Ô¶¨ÒåÊı¾İ£ºÎÄ×ÖÄÚÈİ¼°ÆÁÄ»³ß´ç
-  const char* customText1 = "ÎÒµÄµç×ÓÖ½";    // µÚÒ»ĞĞÎÄ×Ö
-  const char* customText2 = "2025-12-16";   // µÚ¶şĞĞÎÄ×Ö£¨¿ÉÌæ»»Îª¶¯Ì¬Êı¾İ£¬ÈçÊµÊ±Ê±¼ä£©
-  uint16_t screenW = display.width();       // ÆÁÄ»¿í¶È£¨2.9Ó¢´çÆÁĞı×ªºóÎª296px£©
-  uint16_t screenH = display.height();      // ÆÁÄ»¸ß¶È£¨2.9Ó¢´çÆÁĞı×ªºóÎª128px£©
+  // 2. å®šä¹‰è‡ªå®šä¹‰æ•°æ®ï¼šæ–‡å­—å†…å®¹åŠå±å¹•å°ºå¯¸
+  const char* customText1 = "æˆ‘çš„ç”µå­çº¸";    // ç¬¬ä¸€è¡Œæ–‡å­—
+  const char* customText2 = "2025-12-16";   // ç¬¬äºŒè¡Œæ–‡å­—ï¼ˆå¯æ›¿æ¢ä¸ºåŠ¨æ€æ•°æ®ï¼Œå¦‚å®æ—¶æ—¶é—´ï¼‰
+  uint16_t screenW = display.width();       // å±å¹•å®½åº¦ï¼ˆ2.9è‹±å¯¸å±æ—‹è½¬åä¸º296pxï¼‰
+  uint16_t screenH = display.height();      // å±å¹•é«˜åº¦ï¼ˆ2.9è‹±å¯¸å±æ—‹è½¬åä¸º128pxï¼‰
 
-  // 3. ¿ªÊ¼»æÍ¼£ºÊ¹ÓÃfirstPage() + do-whileÑ­»·
-  display.setFullWindow();  // È«ÆÁÄ»Ë¢ĞÂ£¨ÈôÖ»ĞèË¢ĞÂ²¿·ÖÇøÓò£¬Ê¹ÓÃsetPartialWindow()£©
+  // 3. å¼€å§‹ç»˜å›¾ï¼šä½¿ç”¨firstPage() + do-whileå¾ªç¯
+  display.setFullWindow();  // å…¨å±å¹•åˆ·æ–°ï¼ˆè‹¥åªéœ€åˆ·æ–°éƒ¨åˆ†åŒºåŸŸï¼Œä½¿ç”¨setPartialWindow()ï¼‰
   display.firstPage();
   do {
-    // Çå¿ÕÆÁÄ»Îª°×É«£¨µç×ÓÖ½Ä¬ÈÏ±³¾°Îª°×É«£¬Ã¿´Î»æÍ¼Ç°½¨ÒéÇå¿Õ£©
+    // æ¸…ç©ºå±å¹•ä¸ºç™½è‰²ï¼ˆç”µå­çº¸é»˜è®¤èƒŒæ™¯ä¸ºç™½è‰²ï¼Œæ¯æ¬¡ç»˜å›¾å‰å»ºè®®æ¸…ç©ºï¼‰
     display.fillScreen(GxEPD_WHITE);
 
     // --------------------------
-    // ×Ô¶¨ÒåÄÚÈİ1£ºÏÔÊ¾¾ÓÖĞÎÄ×Ö
+    // è‡ªå®šä¹‰å†…å®¹1ï¼šæ˜¾ç¤ºå±…ä¸­æ–‡å­—
     // --------------------------
-    // ¼ÆËãÎÄ×Ö1µÄ±ß½ç¿òÒÔÊµÏÖ¾ÓÖĞ
+    // è®¡ç®—æ–‡å­—1çš„è¾¹ç•Œæ¡†ä»¥å®ç°å±…ä¸­
     int16_t tbx1, tby1; uint16_t tbw1, tbh1;
     display.getTextBounds(customText1, 0, 0, &tbx1, &tby1, &tbw1, &tbh1);
-    uint16_t x1 = (screenW - tbw1) / 2 - tbx1;  // Ë®Æ½¾ÓÖĞ
-    uint16_t y1 = screenH / 3 - tby1;           // ´¹Ö±Î»ÖÃ£¨1/3¸ß¶È´¦£©
+    uint16_t x1 = (screenW - tbw1) / 2 - tbx1;  // æ°´å¹³å±…ä¸­
+    uint16_t y1 = screenH / 3 - tby1;           // å‚ç›´ä½ç½®ï¼ˆ1/3é«˜åº¦å¤„ï¼‰
     display.setCursor(x1, y1);
     display.print(customText1);
 
-    // ¼ÆËãÎÄ×Ö2µÄ±ß½ç¿ò
+    // è®¡ç®—æ–‡å­—2çš„è¾¹ç•Œæ¡†
     int16_t tbx2, tby2; uint16_t tbw2, tbh2;
     display.getTextBounds(customText2, 0, 0, &tbx2, &tby2, &tbw2, &tbh2);
     uint16_t x2 = (screenW - tbw2) / 2 - tbx2;
-    uint16_t y2 = screenH * 2 / 3 - tby2;       // ´¹Ö±Î»ÖÃ£¨2/3¸ß¶È´¦£©
+    uint16_t y2 = screenH * 2 / 3 - tby2;       // å‚ç›´ä½ç½®ï¼ˆ2/3é«˜åº¦å¤„ï¼‰
     display.setCursor(x2, y2);
     display.print(customText2);
 
     // --------------------------
-    // ×Ô¶¨ÒåÄÚÈİ2£º»æÖÆÍ¼ĞÎ£¨±ß¿ò + Ô² + Ïß£©
+    // è‡ªå®šä¹‰å†…å®¹2ï¼šç»˜åˆ¶å›¾å½¢ï¼ˆè¾¹æ¡† + åœ† + çº¿ï¼‰
     // --------------------------
-    // »æÖÆÆÁÄ»±ß¿ò£¨ºÚÉ«£¬1px¿í£©
+    // ç»˜åˆ¶å±å¹•è¾¹æ¡†ï¼ˆé»‘è‰²ï¼Œ1pxå®½ï¼‰
     display.drawRect(5, 5, screenW - 10, screenH - 10, GxEPD_BLACK);
-    // »æÖÆÖĞĞÄÌî³äÔ²£¨ºÚÉ«£¬°ë¾¶10px£©
+    // ç»˜åˆ¶ä¸­å¿ƒå¡«å……åœ†ï¼ˆé»‘è‰²ï¼ŒåŠå¾„10pxï¼‰
     display.fillCircle(screenW / 2, screenH / 2, 10, GxEPD_BLACK);
-    // »æÖÆ¶Ô½ÇÏß£¨´Ó×óÉÏ½Çµ½ÓÒÏÂ½Ç£©
+    // ç»˜åˆ¶å¯¹è§’çº¿ï¼ˆä»å·¦ä¸Šè§’åˆ°å³ä¸‹è§’ï¼‰
     display.drawLine(5, 5, screenW - 10, screenH - 10, GxEPD_BLACK);
 
-  } while (display.nextPage());  // Íê³É»æÍ¼²¢Ë¢ĞÂÆÁÄ»
+  } while (display.nextPage());  // å®Œæˆç»˜å›¾å¹¶åˆ·æ–°å±å¹•
 
-  Serial.println("×Ô¶¨ÒåÄÚÈİÏÔÊ¾Íê³É");
+  Serial.println("è‡ªå®šä¹‰å†…å®¹æ˜¾ç¤ºå®Œæˆ");
 }
 
-// ×¢Òâ£º²¿·Ö¸üĞÂ´°¿ÚºÍsetPartialWindow()·½·¨
-// ²¿·Ö¸üĞÂ´°¿ÚµÄ´óĞ¡ºÍÎ»ÖÃÔÚÎïÀíx·½ÏòÉÏÊÇ×Ö½Ú¶ÔÆëµÄ
-// ¶ÔÓÚÅ¼ÊıĞı×ª£¬Èôx»òw²»ÊÇ8µÄ±¶Êı£¬setPartialWindow()»áÔö´ó³ß´ç£»¶ÔÓÚÆæÊıĞı×ª£¬y»òh²»ÊÇ8µÄ±¶ÊıÊ±Í¬Àí
-// Ïê¼ûGxEPD2_BW.h¡¢GxEPD2_3C.h»òGxEPD2_GFX.hÖĞsetPartialWindow()·½·¨µÄ×¢ÊÍ
+// æ³¨æ„ï¼šéƒ¨åˆ†æ›´æ–°çª—å£å’ŒsetPartialWindow()æ–¹æ³•
+// éƒ¨åˆ†æ›´æ–°çª—å£çš„å¤§å°å’Œä½ç½®åœ¨ç‰©ç†xæ–¹å‘ä¸Šæ˜¯å­—èŠ‚å¯¹é½çš„
+// å¯¹äºå¶æ•°æ—‹è½¬ï¼Œè‹¥xæˆ–wä¸æ˜¯8çš„å€æ•°ï¼ŒsetPartialWindow()ä¼šå¢å¤§å°ºå¯¸ï¼›å¯¹äºå¥‡æ•°æ—‹è½¬ï¼Œyæˆ–hä¸æ˜¯8çš„å€æ•°æ—¶åŒç†
+// è¯¦è§GxEPD2_BW.hã€GxEPD2_3C.hæˆ–GxEPD2_GFX.hä¸­setPartialWindow()æ–¹æ³•çš„æ³¨é‡Š
 
 const char HelloWorld[] = "Hello World!";
 const char HelloArduino[] = "Hello Arduino!";
 const char HelloEpaper[] = "Hello E-Paper!";
 
+// ç¤ºä¾‹ï¼šæ”¹é€ helloWorldå‡½æ•°
 void helloWorld()
 {
-  display.setRotation(1);
-  display.setFont(&FreeMonoBold9pt7b);
-  display.setTextColor(GxEPD_BLACK);
-  int16_t tbx, tby; uint16_t tbw, tbh;
-  display.getTextBounds(HelloWorld, 0, 0, &tbx, &tby, &tbw, &tbh);
-  // Í¨¹ıÔ­µã×ª»»Ê¹±ß½ç¿ò¾ÓÖĞ
-  uint16_t x = ((display.width() - tbw) / 2) - tbx;
-  uint16_t y = ((display.height() - tbh) / 2) - tby;
-  display.setFullWindow();
+  display.setPartialFullWindow();
   display.firstPage();
   do
   {
-    display.fillScreen(GxEPD_WHITE);
-    display.setCursor(x, y);
-    display.print(HelloWorld);
+    display.fillScreen(GxEPD_WHITE);  // æ¸…ç©ºèƒŒæ™¯
+
+    // æ˜¾ç¤ºè‹±æ–‡ï¼ˆä½¿ç”¨è‹±æ–‡å­—ä½“ï¼Œå±…ä¸­å¯¹é½ï¼‰
+    drawUniversalText(
+      display.width() / 2,    // xï¼šå±å¹•ä¸­ç‚¹ï¼ˆå±…ä¸­åŸºå‡†ï¼‰
+      display.height() / 2,   // yï¼šåŸºçº¿ä½ç½®ï¼ˆå‚ç›´å±…ä¸­ï¼‰
+      "Hello World!",         // æ–‡æœ¬å†…å®¹
+      englishFont,            // è‹±æ–‡å­—ä½“
+      GxEPD_BLACK,            // é»‘è‰²æ–‡æœ¬
+      1                       // å±…ä¸­å¯¹é½
+    );
+
+    // æ˜¾ç¤ºæ±‰å­—ï¼ˆä½¿ç”¨ä¸­æ–‡å­—åº“ï¼Œåœ¨è‹±æ–‡ä¸‹æ–¹ï¼‰
+    drawUniversalText(
+      display.width() / 2,
+      display.height() / 2 + 30,  // åŸºçº¿ä¸‹ç§»30pxï¼ˆå­—ä½“é«˜åº¦çº¦16pxï¼Œç•™é—´è·ï¼‰
+      "ä½ å¥½ï¼Œä¸–ç•Œï¼",
+      chineseFont,
+      GxEPD_BLACK,
+      1
+    );
   }
   while (display.nextPage());
 }
@@ -208,42 +483,42 @@ void helloWorld()
 void helloWorldForDummies()
 {
   const char text[] = "Hello World!";
-  // ´ó¶àÊıµç×ÓÖ½µÄÔ­Éú·½ÏòÊÇ¿í<¸ß£¨ÊúÆÁ£©£¬ÓÈÆäÊÇĞ¡³ß´çÆÁÄ»
-  // ÔÚGxEPD2ÖĞ£¬Ğı×ª0ÓÃÓÚÔ­Éú·½Ïò£¨´ó¶àÊıTFT¿â¹Ì¶¨0ÎªÊúÆÁ£©
-  // Ğı×ª1£¨ÏòÓÒĞı×ª90¶È£©¿ÉÔÚĞ¡ÆÁÄ»ÉÏ»ñµÃ×ã¹»¿Õ¼ä£¨ºáÆÁ£©
+  // å¤§å¤šæ•°ç”µå­çº¸çš„åŸç”Ÿæ–¹å‘æ˜¯å®½<é«˜ï¼ˆç«–å±ï¼‰ï¼Œå°¤å…¶æ˜¯å°å°ºå¯¸å±å¹•
+  // åœ¨GxEPD2ä¸­ï¼Œæ—‹è½¬0ç”¨äºåŸç”Ÿæ–¹å‘ï¼ˆå¤§å¤šæ•°TFTåº“å›ºå®š0ä¸ºç«–å±ï¼‰
+  // æ—‹è½¬1ï¼ˆå‘å³æ—‹è½¬90åº¦ï¼‰å¯åœ¨å°å±å¹•ä¸Šè·å¾—è¶³å¤Ÿç©ºé—´ï¼ˆæ¨ªå±ï¼‰
   display.setRotation(1);
-  // Ñ¡ÔñAdafruit_GFXÖĞºÏÊÊµÄ×ÖÌå
+  // é€‰æ‹©Adafruit_GFXä¸­åˆé€‚çš„å­—ä½“
   display.setFont(&FreeMonoBold9pt7b);
-  // ÔÚµç×ÓÖ½ÉÏ£¬ºÚµ×°××Ö¸üÒ×¶Á
+  // åœ¨ç”µå­çº¸ä¸Šï¼Œé»‘åº•ç™½å­—æ›´æ˜“è¯»
   display.setTextColor(GxEPD_BLACK);
-  // Adafruit_GFXµÄgetTextBounds()·½·¨¿ÉÈ·¶¨µ±Ç°×ÖÌåÏÂÎÄ±¾µÄ±ß½ç¿ò
-  int16_t tbx, tby; uint16_t tbw, tbh; // ±ß½ç¿ò´°¿Ú
-  display.getTextBounds(text, 0, 0, &tbx, &tby, &tbw, &tbh); // ÊÊÓÃÓÚÔ­µã(0,0)£¬tby¿ÉÄÜÎª¸º
-  // Í¨¹ıÔ­µã×ª»»Ê¹±ß½ç¿ò¾ÓÖĞ
+  // Adafruit_GFXçš„getTextBounds()æ–¹æ³•å¯ç¡®å®šå½“å‰å­—ä½“ä¸‹æ–‡æœ¬çš„è¾¹ç•Œæ¡†
+  int16_t tbx, tby; uint16_t tbw, tbh; // è¾¹ç•Œæ¡†çª—å£
+  display.getTextBounds(text, 0, 0, &tbx, &tby, &tbw, &tbh); // é€‚ç”¨äºåŸç‚¹(0,0)ï¼Œtbyå¯èƒ½ä¸ºè´Ÿ
+  // é€šè¿‡åŸç‚¹è½¬æ¢ä½¿è¾¹ç•Œæ¡†å±…ä¸­
   uint16_t x = ((display.width() - tbw) / 2) - tbx;
   uint16_t y = ((display.height() - tbh) / 2) - tby;
-  // È«´°¿ÚÄ£Ê½ÊÇ³õÊ¼Ä£Ê½£¬´Ë´¦ÏÔÊ½ÉèÖÃ
+  // å…¨çª—å£æ¨¡å¼æ˜¯åˆå§‹æ¨¡å¼ï¼Œæ­¤å¤„æ˜¾å¼è®¾ç½®
   display.setFullWindow();
-  // ´Ë´¦Ê¹ÓÃ·ÖÒ³»æÍ¼£¬¼´Ê¹´¦ÀíÆ÷ÓĞ×ã¹»RAM´æ´¢È«»º³åÇø
-  // Òò´Ë¿ÉÓÃÓÚÈÎºÎÖ§³ÖµÄ´¦ÀíÆ÷°å
-  // ´úÂë¿ªÏúºÍÖ´ĞĞÊ±¼äËğÊ§ºÜĞ¡
-  // ¸æËßÍ¼ĞÎÀàÊ¹ÓÃ·ÖÒ³»æÍ¼Ä£Ê½
+  // æ­¤å¤„ä½¿ç”¨åˆ†é¡µç»˜å›¾ï¼Œå³ä½¿å¤„ç†å™¨æœ‰è¶³å¤ŸRAMå­˜å‚¨å…¨ç¼“å†²åŒº
+  // å› æ­¤å¯ç”¨äºä»»ä½•æ”¯æŒçš„å¤„ç†å™¨æ¿
+  // ä»£ç å¼€é”€å’Œæ‰§è¡Œæ—¶é—´æŸå¤±å¾ˆå°
+  // å‘Šè¯‰å›¾å½¢ç±»ä½¿ç”¨åˆ†é¡µç»˜å›¾æ¨¡å¼
   display.firstPage();
   do
   {
-    // Õâ²¿·Ö´úÂë»áÖ´ĞĞ¶à´Î£¨¸ù¾İĞèÒª£©
-    // ÈôÎªÈ«»º³åÇø£¬½öÖ´ĞĞÒ»´Î
-    // ÖØÒª£ºÃ¿´Îµü´úĞè»æÖÆÏàÍ¬ÄÚÈİ£¬±ÜÃâÒì³£Ğ§¹û
-    // Ê¹ÓÃ¿ÉÄÜ±ä»¯µÄÖµµÄ¸±±¾£¬²»ÒªÔÚÑ­»·ÖĞ¶ÁÈ¡Ä£ÄâÁ¿»òÒı½Å£¡
-    display.fillScreen(GxEPD_WHITE); // ½«±³¾°ÉèÎª°×É«£¨Ìî³ä»º³åÇøÎª°×É«Öµ£©
-    display.setCursor(x, y); // ÉèÖÃ¿ªÊ¼´òÓ¡ÎÄ±¾µÄÎ»ÖÃ
-    display.print(text); // ´òÓ¡ÎÄ±¾
-    // ¶à´ÎÖ´ĞĞ²¿·Ö½áÊø
+    // è¿™éƒ¨åˆ†ä»£ç ä¼šæ‰§è¡Œå¤šæ¬¡ï¼ˆæ ¹æ®éœ€è¦ï¼‰
+    // è‹¥ä¸ºå…¨ç¼“å†²åŒºï¼Œä»…æ‰§è¡Œä¸€æ¬¡
+    // é‡è¦ï¼šæ¯æ¬¡è¿­ä»£éœ€ç»˜åˆ¶ç›¸åŒå†…å®¹ï¼Œé¿å…å¼‚å¸¸æ•ˆæœ
+    // ä½¿ç”¨å¯èƒ½å˜åŒ–çš„å€¼çš„å‰¯æœ¬ï¼Œä¸è¦åœ¨å¾ªç¯ä¸­è¯»å–æ¨¡æ‹Ÿé‡æˆ–å¼•è„šï¼
+    display.fillScreen(GxEPD_WHITE); // å°†èƒŒæ™¯è®¾ä¸ºç™½è‰²ï¼ˆå¡«å……ç¼“å†²åŒºä¸ºç™½è‰²å€¼ï¼‰
+    display.setCursor(x, y); // è®¾ç½®å¼€å§‹æ‰“å°æ–‡æœ¬çš„ä½ç½®
+    display.print(text); // æ‰“å°æ–‡æœ¬
+    // å¤šæ¬¡æ‰§è¡Œéƒ¨åˆ†ç»“æŸ
   }
-  // ¸æËßÍ¼ĞÎÀà½«»º³åÇøÄÚÈİ£¨Ò³£©´«Êäµ½¿ØÖÆÆ÷»º³åÇø
-  // µ±×îºóÒ»Ò³´«ÊäÍê³É£¬Í¼ĞÎÀà»áÃüÁî¿ØÖÆÆ÷Ë¢ĞÂÆÁÄ»£¨¶ÔÓÚÎŞ¿ìËÙ²¿·Ö¸üĞÂµÄÃæ°å£©
-  // ¶ÔÓÚÓĞ¿ìËÙ²¿·Ö¸üĞÂµÄÃæ°å£¬µ±¿ØÖÆÆ÷»º³åÇøÔÙ´ÎĞ´ÈëÒÔÊ¹²î·Ö»º³åÇøÏàµÈÊ±£¬·µ»Øfalse
-  // £¨¶ÔÓÚ´ø¿ìËÙ²¿·Ö¸üĞÂµÄÈ«»º³å£¬½öÔÙ´Î´«ÊäÈ«»º³åÇø£¬·µ»Øfalse£©
+  // å‘Šè¯‰å›¾å½¢ç±»å°†ç¼“å†²åŒºå†…å®¹ï¼ˆé¡µï¼‰ä¼ è¾“åˆ°æ§åˆ¶å™¨ç¼“å†²åŒº
+  // å½“æœ€åä¸€é¡µä¼ è¾“å®Œæˆï¼Œå›¾å½¢ç±»ä¼šå‘½ä»¤æ§åˆ¶å™¨åˆ·æ–°å±å¹•ï¼ˆå¯¹äºæ— å¿«é€Ÿéƒ¨åˆ†æ›´æ–°çš„é¢æ¿ï¼‰
+  // å¯¹äºæœ‰å¿«é€Ÿéƒ¨åˆ†æ›´æ–°çš„é¢æ¿ï¼Œå½“æ§åˆ¶å™¨ç¼“å†²åŒºå†æ¬¡å†™å…¥ä»¥ä½¿å·®åˆ†ç¼“å†²åŒºç›¸ç­‰æ—¶ï¼Œè¿”å›false
+  // ï¼ˆå¯¹äºå¸¦å¿«é€Ÿéƒ¨åˆ†æ›´æ–°çš„å…¨ç¼“å†²ï¼Œä»…å†æ¬¡ä¼ è¾“å…¨ç¼“å†²åŒºï¼Œè¿”å›falseï¼‰
   while (display.nextPage());
 }
 
@@ -270,17 +545,17 @@ void helloFullScreenPartialMode()
   {
     updatemode = npm;
   }
-  // ÔÚÑ­»·ÍâÖ´ĞĞ´Ë²Ù×÷
+  // åœ¨å¾ªç¯å¤–æ‰§è¡Œæ­¤æ“ä½œ
   int16_t tbx, tby; uint16_t tbw, tbh;
-  // ¾ÓÖĞ¸üĞÂÎÄ±¾
+  // å±…ä¸­æ›´æ–°æ–‡æœ¬
   display.getTextBounds(fullscreen, 0, 0, &tbx, &tby, &tbw, &tbh);
   uint16_t utx = ((display.width() - tbw) / 2) - tbx;
   uint16_t uty = ((display.height() / 4) - tbh / 2) - tby;
-  // ¾ÓÖĞ¸üĞÂÄ£Ê½
+  // å±…ä¸­æ›´æ–°æ¨¡å¼
   display.getTextBounds(updatemode, 0, 0, &tbx, &tby, &tbw, &tbh);
   uint16_t umx = ((display.width() - tbw) / 2) - tbx;
   uint16_t umy = ((display.height() * 3 / 4) - tbh / 2) - tby;
-  // ¾ÓÖĞHelloWorld
+  // å±…ä¸­HelloWorld
   display.getTextBounds(HelloWorld, 0, 0, &tbx, &tby, &tbw, &tbh);
   uint16_t hwx = ((display.width() - tbw) / 2) - tbx;
   uint16_t hwy = ((display.height() - tbh) / 2) - tby;
@@ -304,13 +579,13 @@ void helloArduino()
   display.setFont(&FreeMonoBold9pt7b);
   display.setTextColor(display.epd2.hasColor ? GxEPD_RED : GxEPD_BLACK);
   int16_t tbx, tby; uint16_t tbw, tbh;
-  // Óë¾ÓÖĞµÄHelloWorld¶ÔÆë
+  // ä¸å±…ä¸­çš„HelloWorldå¯¹é½
   display.getTextBounds(HelloWorld, 0, 0, &tbx, &tby, &tbw, &tbh);
   uint16_t x = ((display.width() - tbw) / 2) - tbx;
-  // ¸ß¶È¿ÉÄÜ²»Í¬
+  // é«˜åº¦å¯èƒ½ä¸åŒ
   display.getTextBounds(HelloArduino, 0, 0, &tbx, &tby, &tbw, &tbh);
-  uint16_t y = ((display.height() / 4) - tbh / 2) - tby; // yÊÇ»ùÏß£¡
-  // Ê¹´°¿Ú×ã¹»´óÒÔ¸²¸Ç£¨¸²¸Ç£©ÏÈÇ°ÎÄ±¾µÄÏÂĞĞ²¿·Ö
+  uint16_t y = ((display.height() / 4) - tbh / 2) - tby; // yæ˜¯åŸºçº¿ï¼
+  // ä½¿çª—å£è¶³å¤Ÿå¤§ä»¥è¦†ç›–ï¼ˆè¦†ç›–ï¼‰å…ˆå‰æ–‡æœ¬çš„ä¸‹è¡Œéƒ¨åˆ†
   uint16_t wh = FreeMonoBold9pt7b.yAdvance;
   uint16_t wy = (display.height() / 4) - wh / 2;
   display.setPartialWindow(0, wy, display.width(), wh);
@@ -331,13 +606,13 @@ void helloEpaper()
   display.setFont(&FreeMonoBold9pt7b);
   display.setTextColor(display.epd2.hasColor ? GxEPD_RED : GxEPD_BLACK);
   int16_t tbx, tby; uint16_t tbw, tbh;
-  // Óë¾ÓÖĞµÄHelloWorld¶ÔÆë
+  // ä¸å±…ä¸­çš„HelloWorldå¯¹é½
   display.getTextBounds(HelloWorld, 0, 0, &tbx, &tby, &tbw, &tbh);
   uint16_t x = ((display.width() - tbw) / 2) - tbx;
-  // ¸ß¶È¿ÉÄÜ²»Í¬
+  // é«˜åº¦å¯èƒ½ä¸åŒ
   display.getTextBounds(HelloEpaper, 0, 0, &tbx, &tby, &tbw, &tbh);
-  uint16_t y = (display.height() * 3 / 4) + tbh / 2; // yÊÇ»ùÏß£¡
-  // Ê¹´°¿Ú×ã¹»´óÒÔ¸²¸Ç£¨¸²¸Ç£©ÏÈÇ°ÎÄ±¾µÄÏÂĞĞ²¿·Ö
+  uint16_t y = (display.height() * 3 / 4) + tbh / 2; // yæ˜¯åŸºçº¿ï¼
+  // ä½¿çª—å£è¶³å¤Ÿå¤§ä»¥è¦†ç›–ï¼ˆè¦†ç›–ï¼‰å…ˆå‰æ–‡æœ¬çš„ä¸‹è¡Œéƒ¨åˆ†
   uint16_t wh = FreeMonoBold9pt7b.yAdvance;
   uint16_t wy = (display.height() * 3 / 4) - wh / 2;
   display.setPartialWindow(0, wy, display.width(), wh);
@@ -361,7 +636,7 @@ void deepSleepTest()
   display.setFont(&FreeMonoBold9pt7b);
   display.setTextColor(GxEPD_BLACK);
   int16_t tbx, tby; uint16_t tbw, tbh;
-  // ¾ÓÖĞÎÄ±¾
+  // å±…ä¸­æ–‡æœ¬
   display.getTextBounds(hibernating, 0, 0, &tbx, &tby, &tbw, &tbh);
   uint16_t x = ((display.width() - tbw) / 2) - tbx;
   uint16_t y = ((display.height() - tbh) / 2) - tby;
@@ -378,10 +653,10 @@ void deepSleepTest()
   delay(5000);
   display.getTextBounds(wokeup, 0, 0, &tbx, &tby, &tbw, &tbh);
   uint16_t wx = (display.width() - tbw) / 2;
-  uint16_t wy = (display.height() / 3) + tbh / 2; // yÊÇ»ùÏß£¡
+  uint16_t wy = (display.height() / 3) + tbh / 2; // yæ˜¯åŸºçº¿ï¼
   display.getTextBounds(from, 0, 0, &tbx, &tby, &tbw, &tbh);
   uint16_t fx = (display.width() - tbw) / 2;
-  uint16_t fy = (display.height() * 2 / 3) + tbh / 2; // yÊÇ»ùÏß£¡
+  uint16_t fy = (display.height() * 2 / 3) + tbh / 2; // yæ˜¯åŸºçº¿ï¼
   display.firstPage();
   do
   {
@@ -395,10 +670,10 @@ void deepSleepTest()
   delay(5000);
   display.getTextBounds(hibernating, 0, 0, &tbx, &tby, &tbw, &tbh);
   uint16_t hx = (display.width() - tbw) / 2;
-  uint16_t hy = (display.height() / 3) + tbh / 2; // yÊÇ»ùÏß£¡
+  uint16_t hy = (display.height() / 3) + tbh / 2; // yæ˜¯åŸºçº¿ï¼
   display.getTextBounds(again, 0, 0, &tbx, &tby, &tbw, &tbh);
   uint16_t ax = (display.width() - tbw) / 2;
-  uint16_t ay = (display.height() * 2 / 3) + tbh / 2; // yÊÇ»ùÏß£¡
+  uint16_t ay = (display.height() * 2 / 3) + tbh / 2; // yæ˜¯åŸºçº¿ï¼
   display.firstPage();
   do
   {
@@ -489,17 +764,17 @@ void drawFont(const char name[], const GFXfont* f)
   display.println("pqrstuvwxyz{|}~ ");
 }
 
-// ×¢Òâ£º²¿·Ö¸üĞÂ´°¿ÚºÍsetPartialWindow()·½·¨
-// ²¿·Ö¸üĞÂ´°¿ÚµÄ´óĞ¡ºÍÎ»ÖÃÔÚÎïÀíx·½ÏòÉÏÊÇ×Ö½Ú¶ÔÆëµÄ
-// ¶ÔÓÚÅ¼ÊıĞı×ª£¬Èôx»òw²»ÊÇ8µÄ±¶Êı£¬setPartialWindow()»áÔö´ó³ß´ç£»¶ÔÓÚÆæÊıĞı×ª£¬y»òh²»ÊÇ8µÄ±¶ÊıÊ±Í¬Àí
-// Ïê¼ûGxEPD2_BW.h¡¢GxEPD2_3C.h»òGxEPD2_GFX.hÖĞsetPartialWindow()·½·¨µÄ×¢ÊÍ
-// showPartialUpdate()¹ÊÒâÊ¹ÓÃ·Ç8µÄ±¶ÊıµÄÖµÀ´²âÊÔ´Ë¹¦ÄÜ
+// æ³¨æ„ï¼šéƒ¨åˆ†æ›´æ–°çª—å£å’ŒsetPartialWindow()æ–¹æ³•
+// éƒ¨åˆ†æ›´æ–°çª—å£çš„å¤§å°å’Œä½ç½®åœ¨ç‰©ç†xæ–¹å‘ä¸Šæ˜¯å­—èŠ‚å¯¹é½çš„
+// å¯¹äºå¶æ•°æ—‹è½¬ï¼Œè‹¥xæˆ–wä¸æ˜¯8çš„å€æ•°ï¼ŒsetPartialWindow()ä¼šå¢å¤§å°ºå¯¸ï¼›å¯¹äºå¥‡æ•°æ—‹è½¬ï¼Œyæˆ–hä¸æ˜¯8çš„å€æ•°æ—¶åŒç†
+// è¯¦è§GxEPD2_BW.hã€GxEPD2_3C.hæˆ–GxEPD2_GFX.hä¸­setPartialWindow()æ–¹æ³•çš„æ³¨é‡Š
+// showPartialUpdate()æ•…æ„ä½¿ç”¨é8çš„å€æ•°çš„å€¼æ¥æµ‹è¯•æ­¤åŠŸèƒ½
 
 void showPartialUpdate()
 {
-  // Ò»Ğ©ÓĞÓÃµÄ±³¾°
+  // ä¸€äº›æœ‰ç”¨çš„èƒŒæ™¯
   helloWorld();
-  // Ê¹ÓÃ·Ç¶Ô³ÆÖµ½øĞĞ²âÊÔ
+  // ä½¿ç”¨éå¯¹ç§°å€¼è¿›è¡Œæµ‹è¯•
   uint16_t box_x = 10;
   uint16_t box_y = 15;
   uint16_t box_w = 70;
@@ -509,7 +784,7 @@ void showPartialUpdate()
   uint16_t incr = display.epd2.hasFastPartialUpdate ? 1 : 3;
   display.setFont(&FreeMonoBold9pt7b);
   display.setTextColor(GxEPD_BLACK);
-  // ÏÔÊ¾¸üĞÂ¿òµÄÎ»ÖÃ
+  // æ˜¾ç¤ºæ›´æ–°æ¡†çš„ä½ç½®
   for (uint16_t r = 0; r < 4; r++)
   {
     display.setRotation(r);
@@ -529,7 +804,7 @@ void showPartialUpdate()
     while (display.nextPage());
     delay(1000);
   }
-  // ÔÚ¸üĞÂ¿òÖĞÏÔÊ¾¸üĞÂÄÚÈİ
+  // åœ¨æ›´æ–°æ¡†ä¸­æ˜¾ç¤ºæ›´æ–°å†…å®¹
   for (uint16_t r = 0; r < 4; r++)
   {
     display.setRotation(r);
